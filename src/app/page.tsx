@@ -6,15 +6,15 @@ import { singlePointsOfFailure } from '@/queries/singlePointsOfFailure';
 import type { SinglePointOfFailure } from '@/lib/types';
 
 const QUICK_STARTS = [
-  { id: 'db-sessions', name: 'redis-sessions', type: 'Database', desc: 'Session cache — hidden gateway SPOF' },
-  { id: 'svc-payment', name: 'payment-service', type: 'Service', desc: 'Critical payments path' },
-  { id: 'cred-auth0-cert', name: 'auth0-signing-cert', type: 'Credential', desc: 'Expires in 15 days' },
-  { id: 'db-payments', name: 'postgres-payments', type: 'Database', desc: 'Shared by primary + failover' },
+  { id: 'db-sessions',    name: 'redis-sessions',   type: 'Database',   desc: 'Session cache — hidden gateway SPOF' },
+  { id: 'svc-payment',    name: 'payment-service',  type: 'Service',    desc: 'Critical payments path' },
+  { id: 'cred-auth0-cert',name: 'auth0-signing-cert',type: 'Credential',desc: 'Expires in 15 days' },
+  { id: 'db-payments',    name: 'postgres-payments',type: 'Database',   desc: 'Shared by primary + failover' },
 ];
 
 function formatMoney(n: number): string {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}k`;
+  if (n >= 1_000)     return `$${(n / 1_000).toFixed(0)}k`;
   return `$${n}`;
 }
 
@@ -57,7 +57,10 @@ export default async function HomePage() {
               <Link
                 key={qs.id}
                 href={`/component/${qs.id}`}
-                className="group flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 hover:border-amber-300 hover:shadow-md transition-all"
+                className="group flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3
+                  hover:border-amber-300 hover:shadow-md
+                  active:scale-[0.97] active:shadow-none active:bg-amber-50
+                  transition-all duration-150"
               >
                 <Badge variant={qs.type as never}>{qs.type}</Badge>
                 <span className="font-mono text-sm font-semibold text-zinc-900 group-hover:text-amber-700 transition-colors">
@@ -77,7 +80,7 @@ export default async function HomePage() {
           </div>
           <Link
             href="/risks"
-            className="text-sm font-medium text-amber-600 hover:text-amber-800 underline underline-offset-2"
+            className="text-sm font-medium text-amber-600 hover:text-amber-800 active:text-amber-900 underline underline-offset-2 transition-colors"
           >
             View all risks →
           </Link>
@@ -93,27 +96,32 @@ export default async function HomePage() {
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {risks.slice(0, 6).map(spof => (
-              <Link key={spof.id} href={`/component/${spof.id}`}>
-                <div className="group flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 hover:border-amber-300 hover:shadow-md transition-all cursor-pointer">
-                  <div className="flex items-start justify-between gap-2">
-                    <Badge variant={spof.type as never}>{spof.type}</Badge>
+              <Link
+                key={spof.id}
+                href={`/component/${spof.id}`}
+                className="group flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4
+                  hover:border-amber-300 hover:shadow-md
+                  active:scale-[0.97] active:shadow-none active:bg-amber-50
+                  transition-all duration-150"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <Badge variant={spof.type as never}>{spof.type}</Badge>
+                </div>
+                <p className="font-mono text-sm font-semibold text-zinc-900 group-hover:text-amber-700 transition-colors truncate">
+                  {spof.name}
+                </p>
+                <div className="flex items-end justify-between border-t border-zinc-100 pt-3">
+                  <div>
+                    <p className="text-2xl font-bold tabular-nums text-red-600 leading-none">
+                      {formatMoney(spof.value)}
+                    </p>
+                    <p className="text-xs text-zinc-400 mt-0.5">at risk</p>
                   </div>
-                  <p className="font-mono text-sm font-semibold text-zinc-900 group-hover:text-amber-700 transition-colors truncate">
-                    {spof.name}
-                  </p>
-                  <div className="flex items-end justify-between border-t border-zinc-100 pt-3">
-                    <div>
-                      <p className="text-2xl font-bold tabular-nums text-red-600 leading-none">
-                        {formatMoney(spof.value)}
-                      </p>
-                      <p className="text-xs text-zinc-400 mt-0.5">at risk</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold tabular-nums text-zinc-700 leading-none">
-                        {spof.customers}
-                      </p>
-                      <p className="text-xs text-zinc-400 mt-0.5">customers</p>
-                    </div>
+                  <div className="text-right">
+                    <p className="text-xl font-bold tabular-nums text-zinc-700 leading-none">
+                      {spof.customers}
+                    </p>
+                    <p className="text-xs text-zinc-400 mt-0.5">customers</p>
                   </div>
                 </div>
               </Link>

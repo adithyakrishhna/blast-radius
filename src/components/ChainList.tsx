@@ -44,7 +44,9 @@ export function ChainList({ nodes }: { nodes: AffectedNode[] }) {
                   key={n.id || n.name}
                   href={n.id ? `/component/${n.id}` : '#'}
                   className={`flex items-center gap-3 px-4 py-3 text-sm text-zinc-700
-                    hover:bg-amber-50 hover:text-zinc-900 transition-colors
+                    hover:bg-amber-50 hover:text-zinc-900
+                    active:bg-amber-100 active:scale-[0.99]
+                    transition-all duration-150
                     ${HOP_RING[Number(hop)] ?? ''}
                     ${i > 0 ? 'border-t border-zinc-100' : ''}`}
                 >

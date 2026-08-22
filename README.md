@@ -201,11 +201,13 @@ Browser
                     └── CognoDB (Bolt/TLS)
 ```
 
-### Why Render/Railway, not Vercel
+### Hosting on Vercel
 
-Vercel runs API routes as serverless functions. Each cold start opens a new Neo4j driver instance, which opens a new connection pool. On a free-tier CognoDB instance capped at 200 connections and 256 MB RAM, this exhausts the pool within minutes under any real traffic.
+The app is deployed to Vercel. In production Vercel reuses warm function containers between requests, so the driver singleton in `src/lib/db.ts` is reused across calls on a warm instance — the connection pool is not re-opened per request.
 
-Render and Railway run a persistent Node.js process. The driver singleton in `src/lib/db.ts` is created once at startup and reused for the lifetime of the process — exactly one connection pool, regardless of request volume.
+**Important caveat for high-traffic production use:** Vercel serverless functions can run many parallel containers under load, each opening its own driver pool. On a free-tier CognoDB instance capped at 200 connections, this would exhaust the pool. For this assignment's traffic levels Vercel is fine. A long-running host like Render or Railway (which runs a single persistent process) would be the right choice for production.
+
+This trade-off is explicit in the codebase: `src/lib/db.ts` uses a module-level singleton specifically to share one pool within a process lifecycle.
 
 ---
 
