@@ -1,7 +1,6 @@
 # Blast Radius — Dependency Intelligence
 
-> **Live demo:** _[add link after deployment]_  
-> **Screen recording:** _[add link after recording]_
+> **[Live demo](https://blast-radius-app.vercel.app)** — hosted on Vercel > **[Screen recording](https://www.loom.com/share/d9c2d5b7eac94c278d040436237ec851)** — 3-minute walkthrough
 
 Pick any component in your system — a service, database, credential, or vendor. Blast Radius shows you exactly what breaks if it fails: the technical chain of dependencies, the customer-facing features that stop working, and the total contract value at risk.
 
