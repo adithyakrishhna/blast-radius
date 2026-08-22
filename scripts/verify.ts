@@ -59,8 +59,8 @@ const queries: QueryDef[] = [
   },
   {
     name: 'Q5 — Time-windowed blast radius',
-    cypher: `MATCH path = (target {id: $id})<-[rels*1..6]-(affected)
-             WHERE ALL(r IN rels WHERE r.activeWindow IN $activeWindows)
+    cypher: `MATCH path = (target {id: $id})<-[*1..6]-(affected)
+             WHERE ALL(r IN relationships(path) WHERE r.activeWindow IN $activeWindows)
              WITH affected, min(length(path)) AS hops
              RETURN labels(affected)[0] AS type, affected.name, hops
              ORDER BY hops LIMIT 200`,
@@ -79,7 +79,7 @@ const queries: QueryDef[] = [
     name: 'Q7 — Single points of failure',
     cypher: `MATCH (n)
              WHERE n:Service OR n:Database OR n:Credential OR n:Vendor OR n:Cluster
-             OPTIONAL MATCH (n)<-[*1..6]-(s:Service)-[:POWERS]->(f:Feature)<-[:USES]-(c:Customer)-[:HAS_CONTRACT]->(ct:Contract)
+             OPTIONAL MATCH (n)<-[*1..4]-(s:Service)-[:POWERS]->(f:Feature)<-[:USES]-(c:Customer)-[:HAS_CONTRACT]->(ct:Contract)
              WITH n, count(DISTINCT c) AS customers, sum(DISTINCT ct.value) AS value
              WHERE customers > 0
              RETURN labels(n)[0] AS type, n.id, n.name, customers, value
