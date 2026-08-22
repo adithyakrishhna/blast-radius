@@ -149,13 +149,13 @@ async function seedInfrastructure() {
   return { regions, clusters, hosts, databases };
 }
 
-async function seedServices() {
+async function seedServices(hosts: import('./generators/infrastructure').Host[]) {
   log('Seeding services, teams, credentials, vendors...');
 
   const teams = generateTeams();
   const credentials = generateCredentials();
   const vendors = generateVendors();
-  const services = generateServices([]);  // hosts not needed — IDs are hardcoded
+  const services = generateServices(hosts);
 
   await runBatch(
     'UNWIND $rows AS row CREATE (t:Team {id: row.id, name: row.name, oncallRotation: row.oncallRotation})',
@@ -347,8 +347,8 @@ async function main() {
       await resetData();
     }
 
-    await seedInfrastructure();
-    await seedServices();
+    const { hosts } = await seedInfrastructure();
+    await seedServices(hosts);
     await seedBusiness();
     await printSummary();
 

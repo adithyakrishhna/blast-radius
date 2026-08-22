@@ -14,75 +14,77 @@ const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
 
 type QueryDef = { name: string; cypher: string; params: Record<string, unknown> };
 
+// Note: CognoDB does not support parameterized path depth (*1..$param).
+// Max depth is hardcoded to 6 here; the app layer enforces the user-supplied cap.
 const queries: QueryDef[] = [
   {
     name: 'Q1 — Blast radius (multi-hop)',
-    cypher: `MATCH path = (target {id: $id})<-[r:DEPENDS_ON|READS_FROM|WRITES_TO|AUTHENTICATES_WITH|CALLS_VENDOR*1..$maxHops]-(affected)
+    cypher: `MATCH path = (target {id: $id})<-[r:DEPENDS_ON|READS_FROM|WRITES_TO|AUTHENTICATES_WITH|CALLS_VENDOR*1..6]-(affected)
              WHERE ALL(rel IN relationships(path) WHERE rel.criticality IN $criticalities)
              WITH affected, min(length(path)) AS hops
              RETURN labels(affected)[0] AS type, affected.id, affected.name, hops
              ORDER BY hops ASC, affected.name LIMIT 200`,
-    params: { id: 'db-sessions', maxHops: 4, criticalities: ['hard', 'soft'] },
+    params: { id: 'db-sessions', criticalities: ['hard', 'soft'] },
   },
   {
     name: 'Q2 — Shared fate',
     cypher: `MATCH (a:Service)-[:FAILS_OVER_TO]->(b:Service)
-             MATCH pathA = (a)-[:DEPENDS_ON|READS_FROM|WRITES_TO|HOSTED_ON|PART_OF|LOCATED_IN|AUTHENTICATES_WITH*1..$maxHops]->(shared)
-             MATCH pathB = (b)-[:DEPENDS_ON|READS_FROM|WRITES_TO|HOSTED_ON|PART_OF|LOCATED_IN|AUTHENTICATES_WITH*1..$maxHops]->(shared)
+             MATCH pathA = (a)-[:DEPENDS_ON|READS_FROM|WRITES_TO|HOSTED_ON|PART_OF|LOCATED_IN|AUTHENTICATES_WITH*1..6]->(shared)
+             MATCH pathB = (b)-[:DEPENDS_ON|READS_FROM|WRITES_TO|HOSTED_ON|PART_OF|LOCATED_IN|AUTHENTICATES_WITH*1..6]->(shared)
              WHERE a <> b
              RETURN a.name AS primary, b.name AS failover, labels(shared)[0] AS sharedType, shared.name AS sharedResource,
                     min(length(pathA)) AS hopsFromPrimary, min(length(pathB)) AS hopsFromFailover
              ORDER BY hopsFromPrimary ASC LIMIT 50`,
-    params: { maxHops: 4 },
+    params: {},
   },
   {
     name: 'Q3 — Business impact',
-    cypher: `MATCH (target {id: $id})<-[*1..$maxHops]-(s:Service)-[:POWERS]->(f:Feature)
+    cypher: `MATCH (target {id: $id})<-[*1..6]-(s:Service)-[:POWERS]->(f:Feature)
              MATCH (c:Customer)-[:USES]->(f)
              OPTIONAL MATCH (c)-[:HAS_CONTRACT]->(ct:Contract)
              RETURN collect(DISTINCT f.name) AS brokenFeatures,
                     count(DISTINCT c) AS customersAffected,
                     sum(DISTINCT ct.value) AS contractValueAtRisk,
                     collect(DISTINCT c.name)[..10] AS sampleCustomers`,
-    params: { id: 'db-sessions', maxHops: 4 },
+    params: { id: 'db-sessions' },
   },
   {
     name: 'Q4 — Explain the chain',
     cypher: `MATCH (target {id: $targetId}), (affected {id: $affectedId})
-             MATCH path = shortestPath((affected)-[*1..$maxHops]->(target))
+             MATCH path = shortestPath((affected)-[*1..6]->(target))
              RETURN [n IN nodes(path) | {type: labels(n)[0], name: n.name}] AS chain,
                     [r IN relationships(path) | type(r)] AS links,
                     length(path) AS hops`,
-    params: { targetId: 'db-sessions', affectedId: 'svc-api-gateway', maxHops: 6 },
+    params: { targetId: 'db-sessions', affectedId: 'svc-api-gateway' },
   },
   {
     name: 'Q5 — Time-windowed blast radius',
-    cypher: `MATCH path = (target {id: $id})<-[rels*1..$maxHops]-(affected)
+    cypher: `MATCH path = (target {id: $id})<-[rels*1..6]-(affected)
              WHERE ALL(r IN rels WHERE r.activeWindow IN $activeWindows)
              WITH affected, min(length(path)) AS hops
              RETURN labels(affected)[0] AS type, affected.name, hops
              ORDER BY hops LIMIT 200`,
-    params: { id: 'db-payments', maxHops: 4, activeWindows: ['always'] },
+    params: { id: 'db-payments', activeWindows: ['always'] },
   },
   {
     name: 'Q6 — What-if / planned deprecation',
-    cypher: `MATCH path = (target {id: $id})<-[*1..$maxHops]-(affected)
+    cypher: `MATCH path = (target {id: $id})<-[*1..6]-(affected)
              WHERE NOT any(n IN nodes(path) WHERE n.id IN $simulatedDownIds AND n.id <> $id)
              WITH affected, min(length(path)) AS hops
              RETURN labels(affected)[0] AS type, affected.name, hops
              ORDER BY hops LIMIT 200`,
-    params: { id: 'db-sessions', maxHops: 4, simulatedDownIds: [] },
+    params: { id: 'db-sessions', simulatedDownIds: [] },
   },
   {
     name: 'Q7 — Single points of failure',
     cypher: `MATCH (n)
              WHERE n:Service OR n:Database OR n:Credential OR n:Vendor OR n:Cluster
-             OPTIONAL MATCH (n)<-[*1..$maxHops]-(s:Service)-[:POWERS]->(f:Feature)<-[:USES]-(c:Customer)-[:HAS_CONTRACT]->(ct:Contract)
+             OPTIONAL MATCH (n)<-[*1..6]-(s:Service)-[:POWERS]->(f:Feature)<-[:USES]-(c:Customer)-[:HAS_CONTRACT]->(ct:Contract)
              WITH n, count(DISTINCT c) AS customers, sum(DISTINCT ct.value) AS value
              WHERE customers > 0
              RETURN labels(n)[0] AS type, n.id, n.name, customers, value
              ORDER BY value DESC LIMIT 25`,
-    params: { maxHops: 4 },
+    params: {},
   },
 ];
 
