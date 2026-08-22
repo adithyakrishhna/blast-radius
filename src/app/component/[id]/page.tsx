@@ -72,7 +72,7 @@ export default function ComponentPage() {
         </nav>
 
         {/* Impact summary — always visible; fades while updating */}
-        <div className={`fade-in relative transition-opacity duration-200 ${loading && data ? 'opacity-50' : 'opacity-100'}`}>
+        <div className="fade-in relative">
           {loading && !data ? (
             <SkeletonCard />
           ) : error ? (
@@ -140,10 +140,7 @@ export default function ComponentPage() {
         </div>
 
         {/* Tab content — keep old content visible while loading new */}
-        <div
-          className={`mt-6 fade-in transition-opacity duration-200 ${loading && data ? 'opacity-50' : 'opacity-100'}`}
-          role="tabpanel"
-        >
+        <div className="mt-6 fade-in" role="tabpanel">
           {loading && !data ? (
             /* First-load skeleton */
             <div className="space-y-2">

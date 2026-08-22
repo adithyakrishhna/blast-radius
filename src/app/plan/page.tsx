@@ -147,9 +147,9 @@ export default function PlanPage() {
           {/* Key UX fix: never clear content while loading — fade + spinner instead */}
           <div className="relative">
 
-            {/* Subtle loading overlay — content stays visible */}
-            {loading && (
-              <div className="absolute inset-0 z-10 flex items-start justify-end pt-1 pr-1 pointer-events-none">
+            {/* Small spinner — absolutely positioned so it never shifts layout */}
+            {loading && data && (
+              <div className="absolute top-0 right-0 z-10 pointer-events-none">
                 <div className="flex items-center gap-1.5 rounded-full bg-white border border-zinc-200 px-3 py-1 text-xs text-zinc-500 shadow-sm">
                   <span className="h-3 w-3 animate-spin rounded-full border-2 border-zinc-300 border-t-amber-500" />
                   Updating…
@@ -157,7 +157,8 @@ export default function PlanPage() {
               </div>
             )}
 
-            <div className={`space-y-6 transition-opacity duration-200 ${loading ? 'opacity-50' : 'opacity-100'}`}>
+            {/* No opacity change — content stays fully visible while loading */}
+            <div className="space-y-6">
               {error ? (
                 <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4">
                   <p className="text-sm font-medium text-red-800">Something went wrong</p>
