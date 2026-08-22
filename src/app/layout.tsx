@@ -13,26 +13,28 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-white text-zinc-900">
-        <header className="border-b border-zinc-200 bg-white">
-          <nav className="mx-auto flex max-w-4xl items-center gap-6 px-4 py-3">
-            <Link href="/" className="text-sm font-bold tracking-tight text-zinc-900">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full`}>
+      <body className="min-h-full flex flex-col bg-white text-zinc-900 antialiased">
+
+        {/* Top nav */}
+        <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur-sm">
+          <nav className="mx-auto flex max-w-4xl items-center gap-2 px-4 py-3">
+            <Link href="/" className="mr-4 flex items-center gap-2 font-bold text-zinc-900 text-sm tracking-tight">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-amber-400 text-xs font-black text-white">B</span>
               Blast Radius
             </Link>
-            <div className="flex gap-5 ml-4">
-              <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors">
-                Search
-              </Link>
-              <Link href="/risks" className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors">
-                Risks
-              </Link>
-              <Link href="/plan" className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors">
-                Simulate
-              </Link>
-            </div>
+            <Link href="/" className="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900">
+              Search
+            </Link>
+            <Link href="/risks" className="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900">
+              Risks
+            </Link>
+            <Link href="/plan" className="rounded-md px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900">
+              Simulate
+            </Link>
           </nav>
         </header>
+
         {children}
       </body>
     </html>

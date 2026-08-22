@@ -1,12 +1,10 @@
 import Link from 'next/link';
 import { SearchBox } from '@/components/SearchBox';
 import { Badge } from '@/components/ui/Badge';
-import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { DbStatusBanner } from '@/components/DbStatusBanner';
 import { singlePointsOfFailure } from '@/queries/singlePointsOfFailure';
 import type { SinglePointOfFailure } from '@/lib/types';
 
-// Pre-selected entry points that guarantee a good demo path
 const QUICK_STARTS = [
   { id: 'db-sessions', name: 'redis-sessions', type: 'Database', desc: 'Session cache — hidden gateway SPOF' },
   { id: 'svc-payment', name: 'payment-service', type: 'Service', desc: 'Critical payments path' },
@@ -21,11 +19,8 @@ function formatMoney(n: number): string {
 }
 
 async function getTopRisks(): Promise<SinglePointOfFailure[]> {
-  try {
-    return await singlePointsOfFailure();
-  } catch {
-    return [];
-  }
+  try { return await singlePointsOfFailure(); }
+  catch { return []; }
 }
 
 export default async function HomePage() {
@@ -37,71 +32,90 @@ export default async function HomePage() {
       <main className="mx-auto w-full max-w-4xl px-4 py-16">
 
         {/* Hero */}
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-zinc-900">Blast Radius</h1>
-          <p className="mt-3 text-lg text-zinc-500">
-            Pick any component in your system. See exactly what breaks if it fails —
-            which services stop, which customers are affected, and how much is at risk.
+        <div className="mb-14 text-center">
+          <h1 className="text-5xl font-bold tracking-tight text-zinc-900 leading-tight">
+            If this breaks,<br />what happens?
+          </h1>
+          <p className="mt-4 text-lg text-zinc-500 max-w-xl mx-auto">
+            Pick any component — a service, database, credential or vendor — and see the exact
+            chain of failures, the customers affected, and the contracts at risk.
           </p>
         </div>
 
         {/* Search */}
-        <div className="flex justify-center mb-10">
+        <div className="flex justify-center mb-12">
           <SearchBox />
         </div>
 
         {/* Quick starts */}
-        <div className="mb-12">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">Try these</p>
+        <div className="mb-16">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-zinc-400">
+            Try these
+          </p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {QUICK_STARTS.map(qs => (
               <Link
                 key={qs.id}
                 href={`/component/${qs.id}`}
-                className="flex flex-col gap-1 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm hover:border-zinc-400 hover:shadow-sm transition-all"
+                className="group flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 hover:border-amber-300 hover:shadow-md transition-all"
               >
                 <Badge variant={qs.type as never}>{qs.type}</Badge>
-                <span className="font-mono font-medium text-zinc-900 mt-1">{qs.name}</span>
-                <span className="text-xs text-zinc-500">{qs.desc}</span>
+                <span className="font-mono text-sm font-semibold text-zinc-900 group-hover:text-amber-700 transition-colors">
+                  {qs.name}
+                </span>
+                <span className="text-xs text-zinc-400 leading-snug">{qs.desc}</span>
               </Link>
             ))}
           </div>
         </div>
 
         {/* Top risks */}
-        <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-zinc-900">Top single points of failure</h2>
-          <Link href="/risks" className="text-sm text-zinc-500 hover:text-zinc-900 underline underline-offset-2">
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-zinc-900">Top single points of failure</h2>
+            <p className="text-sm text-zinc-500">Ranked by contract value at risk</p>
+          </div>
+          <Link
+            href="/risks"
+            className="text-sm font-medium text-amber-600 hover:text-amber-800 underline underline-offset-2"
+          >
             View all risks →
           </Link>
         </div>
 
         {risks.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-6 py-10 text-center">
-            <p className="text-sm text-zinc-500">Risk data unavailable — database may be unreachable.</p>
+          <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 px-6 py-12 text-center">
+            <p className="text-sm text-zinc-400">Risk data unavailable. Is the database running?</p>
+            <Link href="/api/health" target="_blank" className="mt-2 inline-block text-xs text-zinc-400 underline">
+              Check health →
+            </Link>
           </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {risks.slice(0, 6).map(spof => (
               <Link key={spof.id} href={`/component/${spof.id}`}>
-                <Card className="hover:border-zinc-400 hover:shadow-sm transition-all cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <Badge variant={spof.type as never}>{spof.type}</Badge>
-                    </div>
-                    <CardTitle><span className="font-mono">{spof.name}</span></CardTitle>
-                  </CardHeader>
-                  <div className="flex items-end justify-between">
+                <div className="group flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-4 hover:border-amber-300 hover:shadow-md transition-all cursor-pointer">
+                  <div className="flex items-start justify-between gap-2">
+                    <Badge variant={spof.type as never}>{spof.type}</Badge>
+                  </div>
+                  <p className="font-mono text-sm font-semibold text-zinc-900 group-hover:text-amber-700 transition-colors truncate">
+                    {spof.name}
+                  </p>
+                  <div className="flex items-end justify-between border-t border-zinc-100 pt-3">
                     <div>
-                      <p className="text-2xl font-bold tabular-nums text-zinc-900">{formatMoney(spof.value)}</p>
-                      <p className="text-xs text-zinc-500">at risk</p>
+                      <p className="text-2xl font-bold tabular-nums text-red-600 leading-none">
+                        {formatMoney(spof.value)}
+                      </p>
+                      <p className="text-xs text-zinc-400 mt-0.5">at risk</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-semibold tabular-nums text-zinc-700">{spof.customers}</p>
-                      <p className="text-xs text-zinc-500">customers</p>
+                      <p className="text-xl font-bold tabular-nums text-zinc-700 leading-none">
+                        {spof.customers}
+                      </p>
+                      <p className="text-xs text-zinc-400 mt-0.5">customers</p>
                     </div>
                   </div>
-                </Card>
+                </div>
               </Link>
             ))}
           </div>
