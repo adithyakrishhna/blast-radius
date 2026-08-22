@@ -9,14 +9,15 @@ Pick any component in your system — a service, database, credential, or vendor
 
 ## Screenshots
 
-_[Landing page — add after running the app]_
+![Landing page — top single points of failure ranked by contract value at risk](docs/screenshots/landing.png)
 
-_[Component impact view — add after running the app]_
+![Component impact view — $3.3M at risk, 150 customers affected, 4-hop dependency chain](docs/screenshots/component-impact.png)
 
-_[Shared fate finding — add after running the app]_
+![Risk dashboard — shared fate findings and single points of failure](docs/screenshots/risks.png)
 
-_[Risk dashboard — add after running the app]_
+![Simulate failure — what-if mode projecting blast radius without touching the database](docs/screenshots/simulate.png)
 
+![Mobile view — responsive layout at narrow viewport](docs/screenshots/mobile.png)
 ---
 
 ## The problem
