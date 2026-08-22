@@ -81,7 +81,7 @@ async function resetData() {
         const result = await session.run(
           `MATCH (n:${label}) WITH n LIMIT 500 DETACH DELETE n RETURN count(n) AS deleted`,
         );
-        deleted = (result.records[0]?.get('deleted') as number) ?? 0;
+        deleted = Number(result.records[0]?.get('deleted') ?? 0);
         if (deleted > 0) log(`  Deleted ${deleted} ${label} nodes`);
       } finally {
         await session.close();
@@ -320,7 +320,7 @@ async function printSummary() {
        RETURN label, cnt ORDER BY cnt DESC`,
     );
     nodeResult.records.forEach(r => {
-      log(`  ${r.get('label')}: ${r.get('cnt')} nodes`);
+      log(`  ${r.get('label')}: ${Number(r.get('cnt'))} nodes`);
     });
 
     const relResult = await session.run('MATCH ()-[r]->() RETURN count(r) AS total');

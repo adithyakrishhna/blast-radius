@@ -104,7 +104,7 @@ async function verify() {
       console.log('Node counts:');
       let total = 0;
       nodeResult.records.forEach(r => {
-        const cnt = r.get('cnt') as number;
+        const cnt = Number(r.get('cnt'));
         total += cnt;
         console.log(`  ${r.get('label')}: ${cnt}`);
       });
@@ -115,7 +115,7 @@ async function verify() {
       }
 
       const relResult = await session.run('MATCH ()-[r]->() RETURN count(r) AS total');
-      const relTotal = relResult.records[0]?.get('total') as number;
+      const relTotal = Number(relResult.records[0]?.get('total'));
       console.log(`  TOTAL relationships: ${relTotal}\n`);
     } finally {
       await session.close();
